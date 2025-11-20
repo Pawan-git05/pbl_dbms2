@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template
 from extensions.csv_manager import read_csv, write_csv, append_row
 from datetime import datetime
 import pandas as pd
+import numpy as np
 import os
 
 admin_bp = Blueprint('admin', __name__)
@@ -23,6 +24,13 @@ def admin_table(table_name):
         
         # Read data
         df = read_csv(table_name)
+        # Sanitize DataFrame to ensure JSON serializable data
+        if not df.empty:
+            df = df.fillna('')
+            df = df.replace({np.nan: '', pd.NaT: ''})
+            # Convert all columns to string to ensure JSON serializable
+            for col in df.columns:
+                df[col] = df[col].astype(str)
         data = df.to_dict('records')
         
         # Return JSON data for AJAX requests
@@ -59,6 +67,13 @@ def admin_api(table_name):
         if request.method == 'GET':
             # Return all records
             df = read_csv(table_name)
+            # Sanitize DataFrame to ensure JSON serializable data
+            if not df.empty:
+                df = df.fillna('')
+                df = df.replace({np.nan: '', pd.NaT: ''})
+                # Convert all columns to string to ensure JSON serializable
+                for col in df.columns:
+                    df[col] = df[col].astype(str)
             data = df.to_dict('records')
             return jsonify({
                 'success': True,
@@ -124,17 +139,31 @@ def admin_stats():
         donations_df = read_csv('donations')
         hospitals_df = read_csv('hospitals')
         
+        # Sanitize DataFrames
+        if not cases_df.empty:
+            cases_df = cases_df.fillna('')
+            cases_df = cases_df.replace({np.nan: '', pd.NaT: ''})
+        if not donations_df.empty:
+            donations_df = donations_df.fillna('')
+            donations_df = donations_df.replace({np.nan: '', pd.NaT: ''})
+        if not hospitals_df.empty:
+            hospitals_df = hospitals_df.fillna('')
+            hospitals_df = hospitals_df.replace({np.nan: '', pd.NaT: ''})
+        
         # Calculate statistics
         total_cases = len(cases_df)
         total_donations = len(donations_df)
         total_hospitals = len(hospitals_df)
         
-        # Calculate total donation amount
+        # Calculate total donation amount in Indian Rupees
         total_amount = 0
         if not donations_df.empty and 'amount' in donations_df.columns:
             # Convert amount column to numeric, handling any non-numeric values
-            donations_df['amount'] = pd.to_numeric(donations_df['amount'], errors='coerce')
+            donations_df['amount'] = pd.to_numeric(donations_df['amount'], errors='coerce').fillna(0)
             total_amount = donations_df['amount'].sum()
+        
+        # Format total amount as Indian Rupees
+        formatted_amount = f"₹{float(total_amount):,.2f}"
         
         return jsonify({
             'success': True,
@@ -142,7 +171,7 @@ def admin_stats():
                 'total_cases': total_cases,
                 'total_donations': total_donations,
                 'total_hospitals': total_hospitals,
-                'total_amount': float(total_amount)
+                'total_amount': formatted_amount
             }
         }), 200
         

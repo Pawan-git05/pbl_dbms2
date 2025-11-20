@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from extensions.csv_manager import read_csv, append_row
 from datetime import datetime
+import pandas as pd
+import numpy as np
 
 donations_bp = Blueprint('donations', __name__)
 
@@ -40,6 +42,13 @@ def add_donation():
 def get_all_donations():
     try:
         df = read_csv('donations')
+        # Sanitize DataFrame to ensure JSON serializable data
+        if not df.empty:
+            df = df.fillna('')
+            df = df.replace({np.nan: '', pd.NaT: ''})
+            # Convert all columns to string to ensure JSON serializable
+            for col in df.columns:
+                df[col] = df[col].astype(str)
         donations = df.to_dict('records')
         return jsonify({
             'success': True,

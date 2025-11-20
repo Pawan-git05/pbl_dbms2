@@ -10,7 +10,7 @@ async function loadAdminStats() {
             document.getElementById('totalCases').textContent = result.data.total_cases;
             document.getElementById('totalDonations').textContent = result.data.total_donations;
             document.getElementById('totalHospitals').textContent = result.data.total_hospitals;
-            document.getElementById('totalAmount').textContent = '$' + result.data.total_amount.toFixed(2);
+            document.getElementById('totalAmount').textContent = result.data.total_amount;
         } else {
             throw new Error(result.message);
         }
@@ -22,17 +22,22 @@ async function loadAdminStats() {
 
 // Load all tables
 async function loadAllTables() {
-    // Load cases
-    const cases = await fetchCases();
-    renderCasesTable(cases, 'casesTable');
-    
-    // Load donations
-    const donations = await fetchDonations();
-    renderDonationsTable(donations, 'donationsTable');
-    
-    // Load hospitals
-    const hospitals = await fetchHospitals();
-    renderHospitalsTable(hospitals, 'hospitalsTable');
+    try {
+        // Load cases
+        const cases = await fetchCases();
+        renderCasesTable(cases, 'casesTable');
+        
+        // Load donations
+        const donations = await fetchDonations();
+        renderDonationsTable(donations, 'donationsTable');
+        
+        // Load hospitals
+        const hospitals = await fetchHospitals();
+        renderHospitalsTable(hospitals, 'hospitalsTable');
+    } catch (error) {
+        console.error('Error loading tables:', error);
+        showToast('Error loading data tables: ' + error.message, 'error');
+    }
 }
 
 // Search hospitals and display results

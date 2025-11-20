@@ -18,7 +18,23 @@ function showToast(message, type = 'success') {
 async function fetchCases() {
     try {
         const response = await fetch('/cases/all');
-        const result = await response.json();
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to check if it's valid JSON
+        const responseText = await response.text();
+        
+        // Try to parse JSON
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Invalid JSON response:', responseText);
+            throw new Error('Invalid response from server');
+        }
         
         if (result.success) {
             return result.data;
@@ -36,7 +52,23 @@ async function fetchCases() {
 async function fetchDonations() {
     try {
         const response = await fetch('/donations/all');
-        const result = await response.json();
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to check if it's valid JSON
+        const responseText = await response.text();
+        
+        // Try to parse JSON
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Invalid JSON response:', responseText);
+            throw new Error('Invalid response from server');
+        }
         
         if (result.success) {
             return result.data;
@@ -54,7 +86,23 @@ async function fetchDonations() {
 async function fetchHospitals() {
     try {
         const response = await fetch('/hospitals/all');
-        const result = await response.json();
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to check if it's valid JSON
+        const responseText = await response.text();
+        
+        // Try to parse JSON
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Invalid JSON response:', responseText);
+            throw new Error('Invalid response from server');
+        }
         
         if (result.success) {
             return result.data;
@@ -72,7 +120,23 @@ async function fetchHospitals() {
 async function searchHospitalsAPI(city) {
     try {
         const response = await fetch(`/hospitals/search?city=${encodeURIComponent(city)}`);
-        const result = await response.json();
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to check if it's valid JSON
+        const responseText = await response.text();
+        
+        // Try to parse JSON
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Invalid JSON response:', responseText);
+            throw new Error('Invalid response from server');
+        }
         
         if (result.success) {
             return result.data;
@@ -200,7 +264,7 @@ function renderDonationsTable(donations, containerId) {
             <tr>
                 <td>${donation.donor_name}</td>
                 <td>${donation.donor_email}</td>
-                <td>$${donation.amount}</td>
+                <td>₹${donation.amount}</td>
                 <td>${donation.category}</td>
                 <td>${donation.created_at}</td>
             </tr>

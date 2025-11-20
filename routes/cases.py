@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from extensions.csv_manager import read_csv, append_row, generate_case_id, write_csv
 from datetime import datetime
 import os
+import pandas as pd
+import numpy as np
 
 cases_bp = Blueprint('cases', __name__)
 
@@ -68,6 +70,13 @@ def report_case():
 def get_all_cases():
     try:
         df = read_csv('cases')
+        # Sanitize DataFrame to ensure JSON serializable data
+        if not df.empty:
+            df = df.fillna('')
+            df = df.replace({np.nan: '', pd.NaT: ''})
+            # Convert all columns to string to ensure JSON serializable
+            for col in df.columns:
+                df[col] = df[col].astype(str)
         cases = df.to_dict('records')
         return jsonify({
             'success': True,
