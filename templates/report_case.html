@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Case - ResQTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🐾</span>
+                    ResQTrack
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/report-case">Report Case</a></li>
+                        <li><a href="/donate">Donate</a></li>
+                        <li><a href="/hospitals">Hospitals</a></li>
+                        <li><a href="/admin">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Report Animal Emergency Case</h2>
+                        <p class="mb-0">Please provide as much detail as possible to help us respond quickly</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="reportCaseForm" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="reporter_name" class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="reporter_name" name="reporter_name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="reporter_phone" class="form-label">Phone Number *</label>
+                                        <input type="tel" class="form-control" id="reporter_phone" name="reporter_phone" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="location" class="form-label">Location of Animal *</label>
+                                <input type="text" class="form-control" id="location" name="location" placeholder="Street address, city, state" required>
+                                <small class="form-text text-muted">Be as specific as possible for quick response</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="animal_type" class="form-label">Animal Type *</label>
+                                        <select class="form-control" id="animal_type" name="animal_type" required>
+                                            <option value="">Select Animal Type</option>
+                                            <option value="Dog">Dog</option>
+                                            <option value="Cat">Cat</option>
+                                            <option value="Bird">Bird</option>
+                                            <option value="Wildlife">Wildlife</option>
+                                            <option value="Livestock">Livestock</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="urgency" class="form-label">Urgency Level *</label>
+                                        <select class="form-control" id="urgency" name="urgency" required>
+                                            <option value="">Select Urgency</option>
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Additional Details</label>
+                                <textarea class="form-control" id="notes" name="notes" placeholder="Describe the situation, animal's condition, any dangers, etc."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="media" class="form-label">Upload Photo/Video (Optional)</label>
+                                <input type="file" class="form-control" id="media" name="media" accept="image/*,video/*">
+                                <small class="form-text text-muted">Photos or videos can help responders assess the situation</small>
+                            </div>
+
+                            <div class="form-group text-center mt-4">
+                                <button type="submit" class="btn btn-large btn-primary">Submit Emergency Report</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Report Submitted Successfully!</h3>
+                <button class="close-button" onclick="closeModal('successModal')">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="text-success" style="font-size: 3rem;">✓</div>
+                <p id="successMessage" class="mt-2"></p>
+                <p>Your case has been registered with us. Our team will respond as soon as possible.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('successModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 ResQTrack. All rights reserved.</p>
+            <p>Making a difference, one animal at a time.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Handle form submission
+        document.getElementById('reportCaseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/cases/report', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success modal
+                    document.getElementById('successMessage').textContent = result.message;
+                    document.getElementById('successModal').style.display = 'flex';
+                    
+                    // Reset form
+                    this.reset();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error submitting report: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

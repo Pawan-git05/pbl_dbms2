@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate - ResQTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🐾</span>
+                    ResQTrack
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/report-case">Report Case</a></li>
+                        <li><a href="/donate">Donate</a></li>
+                        <li><a href="/hospitals">Hospitals</a></li>
+                        <li><a href="/admin">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">Support Animal Rescue Efforts</h2>
+                        <p class="mb-0">Your donation helps save lives and provide care for animals in need</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="donationForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="donor_name" class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="donor_name" name="donor_name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="donor_email" class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" id="donor_email" name="donor_email" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="amount" class="form-label">Donation Amount ($) *</label>
+                                <input type="number" class="form-control" id="amount" name="amount" min="1" step="0.01" required>
+                                <small class="form-text text-muted">Any amount helps - $5, $10, $25, $50 or more</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="category" class="form-label">Donation Category *</label>
+                                <select class="form-control" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Medical Aid">Medical Aid</option>
+                                    <option value="Food">Food & Nutrition</option>
+                                    <option value="Shelter">Shelter & Housing</option>
+                                    <option value="Emergency Response">Emergency Response</option>
+                                    <option value="General Support">General Support</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group text-center mt-4">
+                                <button type="submit" class="btn btn-large btn-success">Donate Now</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Donation Impact -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Your Donation Makes a Difference</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-value text-success">$25</div>
+                                <p>Provides emergency medical care for one animal</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-value text-success">$50</div>
+                                <p>Feeds and shelters an animal for one week</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-value text-success">$100</div>
+                                <p>Covers transportation and emergency response costs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="donationSuccessModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Thank You for Your Donation!</h3>
+                <button class="close-button" onclick="closeModal('donationSuccessModal')">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="text-success" style="font-size: 3rem;">❤️</div>
+                <p class="mt-2">Your generous donation has been received and will help save animal lives.</p>
+                <p>Together, we're making a difference in our community.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="closeModal('donationSuccessModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 ResQTrack. All rights reserved.</p>
+            <p>Making a difference, one animal at a time.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Handle form submission
+        document.getElementById('donationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/donations/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success modal
+                    document.getElementById('donationSuccessModal').style.display = 'flex';
+                    
+                    // Reset form
+                    this.reset();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error processing donation: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
